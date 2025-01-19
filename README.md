@@ -1,2 +1,3 @@
 # SQL-repo
-En este repositorio encontrarás varios ejercicios resueltos sobre consultas SQL a una base de datos provista por mi universidad. 
+
+En este repositorio encontrarás varios ejercicios con ejemplos resueltos sobre consultas y creación de tablas en SQL inspirados en distintas resoluciones de ejercicios provistos la facultad en la que estudio actualmente.
