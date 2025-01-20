@@ -13,7 +13,7 @@ CREATE TABLE ALUMNO (
 
 ALTER TABLE ALUMNO
     ADD CONSTRAINT PK_ALUMNO
-    PRIMARY KEY ALUMNO(LU);
+    PRIMARY KEY (LU);
 
 CREATE TABLE CARRERA (
     id_carrera int NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE CARRERA (
 
 ALTER TABLE CARRERA 
     ADD CONSTRAINT PK_CARRERA
-    PRIMARY KEY CARRERA(id_carrera);
+    PRIMARY KEY (id_carrera);
 
 -- Ahora la relación:
 
@@ -34,7 +34,7 @@ CREATE TABLE CURSA (
 
 ALTER TABLE CURSA
     ADD CONSTRAINT PK_CURSA
-    PRIMARY KEY CURSA(LU, id_carrera); -- cuando tenemos más de un atributo identificador, podemos colocarlos todos separados mediante comas.
+    PRIMARY KEY (LU, id_carrera); -- cuando tenemos más de un atributo identificador, podemos colocarlos todos separados mediante comas.
 
 ALTER TABLE CURSA 
     ADD CONSTRAINT FK_CURSA_ALUMNO
