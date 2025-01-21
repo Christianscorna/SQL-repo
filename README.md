@@ -7,7 +7,7 @@ En este repositorio encontrarás varios ejercicios con ejemplos resueltos sobre 
 ## Autor -
 **Christian Scornaienchi**
 
-* [LinkedIn] (www.linkedin.com/in/christian-scornaienchi-831239248)
+* [LinkedIn](www.linkedin.com/in/christian-scornaienchi-831239248)
 
 ## Instalación
 
@@ -15,4 +15,4 @@ Este proyecto no requiere de instalaciones adicionales, lo único que debes hace
 
 ## Consultas
 
-Por cualquier duda, error, o el motivo que fuere puedes escribirme a mi dirección de correo electrónico: cscornaienchi@alumnos.exa.unicen.edu.ar)
+Por cualquier duda, error, o el motivo que fuere puedes escribirme a mi dirección de correo electrónico: cscornaienchi@alumnos.exa.unicen.edu.ar
