@@ -2,6 +2,8 @@ CREATE TABLE CURSO (
     cod char(4) NOT NULL,
     descripcion varchar(40) NOT NULL,
     tipo char(1) NOT NULL,
+    cod_inscrito char(4) NOT NULL,
+    LU_inscrito int NOT NULL
 )
 
 ALTER TABLE CURSO 
@@ -9,7 +11,7 @@ ALTER TABLE CURSO
     PRIMARY KEY (cod)
 
 CREATE TABLE ALUMNO (
-    LU integer(5) NOT NULL, 
+    LU int NOT NULL, 
     nombre varchar(40) NOT NULL,
     provincia varchar(30) NOT NULL
 )
@@ -20,7 +22,7 @@ ALTER TABLE ALUMNO
 
 CREATE TABLE INSCRIPTO (
     cod char(4) NOT NULL,
-    LU integer(5) NOT NULL,
+    LU int NOT NULL,
 )
 
 ALTER TABLE INSCRIPTO
@@ -40,7 +42,7 @@ ALTER TABLE INSCRIPTO
 -- acá está la magia del curso:
 ALTER TABLE CURSO
     ADD CONSTRAINT FK_CURSO_REFERENTE_INSCRIPTO
-    FOREIGN KEY (cod, LU)
+    FOREIGN KEY (cod_inscrito, LU_inscrito)
     REFERENCES INSCRIPTO(cod, lU)
 
     -- consultar si está bien la referencia
