@@ -4,8 +4,7 @@
 
 En este repositorio encontrarás varios ejercicios con ejemplos resueltos sobre consultas y creación de tablas en SQL inspirados en distintas resoluciones de ejercicios provistos la facultad en la que estudio actualmente.
 
-## Autor 
-**Christian Scornaienchi**
+## Autor - **Christian Scornaienchi**
 
 * [LinkedIn](www.linkedin.com/in/christian-scornaienchi-831239248)
 
