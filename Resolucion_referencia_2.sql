@@ -1,0 +1,43 @@
+CREATE TABLE GRABACION (
+    nro_grabacion int NOT NULL,
+    casa_discografica varchar(50) NOT NULL,
+    fecha_grabacion date NOT NULL,
+    tipo char(1) NOT NULL
+    CONSTRAINT PK_GRABACION PRIMARY KEY (nro_grabacion)
+)
+
+CREATE TABLE GRABACION_NO_PROPIA (
+    nro_grabacion int NOT NULL,
+    duracion int NOT NULL,
+    CONSTRAINT PK_GRABACION_NO_PROPIA PRIMARY KEY (nro_grabacion)
+)
+
+ALTER TABLE GRABACION_NO_PROPIA
+    ADD CONSTRAINT FK_GRABACION_NO_PROPIA
+    FOREIGN KEY nro_grabacion
+    REFERENCES GRABACION(nro_grabacion)
+
+CREATE TABLE GRABACION_COMERCIAL (
+    nro_grabacion int NOT NULL,
+    nro_equipo int NOT NULL,
+    CONSTRAINT PK_GRABACION_COMERCIAL PRIMARY KEY (nro_grabacion)
+)
+
+ALTER TABLE GRABACION_COMERCIAL 
+    ADD CONSTRAINT FK_GRABACION_COMERCIAL
+    FOREIGN KEY nro_grabacion
+    REFERENCES GRABACION(nro_grabacion)
+
+ALTER TABLE GRABACION_COMERCIAL 
+    ADD CONSTRAINT FK_GRABACION_COMERCIAL_EQUIPO
+    FOREIGN KEY nro_equipo
+    REFERENCES EQUIPO(nro_equipo)
+
+CREATE TABLE EQUIPO (
+    nro_equipo int NOT NULL,
+    descripcion varchar(50) NOT NULL,
+    CONSTRAINT PK_EQUIPO PRIMARY KEY (nro_equipo)
+)
+
+
+
