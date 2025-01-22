@@ -4,7 +4,7 @@
 
 En este repositorio encontrarás varios ejercicios con ejemplos resueltos sobre consultas y creación de tablas en SQL inspirados en distintas resoluciones de ejercicios provistos la facultad en la que estudio actualmente.
 
-## Autor -
+## Autor 
 **Christian Scornaienchi**
 
 * [LinkedIn](www.linkedin.com/in/christian-scornaienchi-831239248)
@@ -12,6 +12,10 @@ En este repositorio encontrarás varios ejercicios con ejemplos resueltos sobre 
 ## Instalación
 
 Este proyecto no requiere de instalaciones adicionales, lo único que debes hacer si estás interesado en aprender SQL o ver las soluciones y ejemplos es dar un clik en el archivo que te interese.
+
+## Instrucciones
+
+Las clases estan todas ordenadas. Para comenzar se recomienda ver la carpeta de Tablas, las clases estan ordenadas en orden creciente como C0, C1, en adelante. 
 
 ## Consultas
 
