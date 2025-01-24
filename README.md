@@ -20,8 +20,8 @@ Las clases estan todas ordenadas. Para comenzar se recomienda ver la carpeta de 
 
 Los trabajos prácticos responden a los esquemas que se mencionan en cada ejercicio práctico particularmente. Para probarlos debes entrar via cliente web de PHPPgAdmin con alguno de los siguientes enlaces
 
-[Afuera de la unicen](http://dbases.exa.unicen.edu.ar:8080/phppgadmin)
-[Dentro de la unicen](http://dbases.exa.unicen.edu.ar/phppgadmin)
+* [Afuera de la unicen](http://dbases.exa.unicen.edu.ar:8080/phppgadmin)
+* [Dentro de la unicen](http://dbases.exa.unicen.edu.ar/phppgadmin)
 
 Luego una vez dentro inicar sesión con tu nombre de usuario: unc_nrolegajo y contraseña: nro_legajo y copiar y pegar los códigos SQL. 
 
