@@ -158,3 +158,27 @@ FROM voluntario
 GROUP BY id_institucion
 HAVING COUNT(nro_voluntario) > 10;
 
+-- 8 Liste los apellidos, nombres y e-mails de los empleados con cuentas de gmail y cuyo sueldo sea superior a 1000.
+SELECT apellido, nombre, e_mail 
+FROM empleado
+WHERE sueldo > 1000;
+ -- NOTA: Los email no admiten nulos asi que no hace falta consultar por IS NOT NULL a e_mail
+
+ -- 9 Muestre los códigos de películas que han recibido entre 3 y 5 entregas. (cantidad de entregas, NO cantidad de películas entregadas)
+SELECT codigo_pelicula, cantidad
+FROM renglon_entrega
+WHERE cantidad BETWEEN 3 AND 5;
+
+-- 10 Liste la cantidad de películas que hay por cada idioma.
+SELECT idioma, COUNT(codigo_pelicula) AS "Películas por Idioma"
+FROM pelicula
+GROUP BY idioma
+ORDER BY idioma;
+
+-- 11 Calcule la cantidad de empleados por departamento
+SELECT id_departamento, COUNT(id_empleado) AS "Empleados por Deptartamento"
+FROM empleado
+GROUP BY id_departamento
+ORDER BY id_departamento;
+
+-- Fin Trabajo Práctico N°4 Parte 1
