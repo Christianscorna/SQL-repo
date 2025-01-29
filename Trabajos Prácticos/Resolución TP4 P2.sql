@@ -110,4 +110,154 @@ LEFT JOIN voluntario v ON i.id_institucion = v.id_institucion
 -- Por qué LEFT y no INNER? Porque precisamente el enunciado nos dice: TODAS las instituciones e INNER quita aquellas instituciones que contenían valores nullos 
   --> EL resultado son 106 filas para inner contra 122 para left
 
+-- 1.9 Para cada uno de los empleados indique su id, nombre y apellido junto con el id, nombre y apellido de su jefe, en caso de tenerlo
+SELECT (e.id_empleado || ', ' || e.nombre || ', ' || e.apellido) AS "Datos empleado", (e1.id_empleado || ', ' || e1.nombre || ', ' || e1.apellido) AS "Datos Jefe"
+FROM empleado e
+INNER JOIN empleado e1 ON e.id_empleado = e1.id_jefe;
+
+-- 1.10 Determine los ids, nombres y apellidos de los empleados que son jefes y cuyos departamentos donde se desempeñan se encuentren en la ciudad ‘Rawalpindi’. Ordene los datos por los id
+SELECT e.id_empleado, e.nombre, e.apellido --, c.id_ciudad
+FROM empleado e
+INNER JOIN empleado j ON j.id_jefe = e.id_empleado
+INNER JOIN departamento d ON d.id_departamento = j.id_departamento
+INNER JOIN ciudad c ON c.id_ciudad = d.id_ciudad
+WHERE c.nombre_ciudad LIKE 'Rawalpindi' 
+ORDER BY e.id_empleado;
+
+SELECT nombre_ciudad FROM ciudad WHERE id_ciudad = 175; --Efectivamente es la ciudad solicitada
+
+-- 1.11 Liste los ids y números de inscripción de los distribuidores nacionales que hayan entregado películas en idioma Español luego del año 2010
+SELECT din.id_distribuidor, din.nro_inscripcion, en.fecha_entrega
+FROM nacional din
+LEFT JOIN distribuidor di ON di.id_distribuidor = din.id_distribuidor 
+LEFT JOIN entrega en ON en.id_distribuidor = di.id_distribuidor
+LEFT JOIN renglon_entrega re ON re.nro_entrega = en.nro_entrega
+WHERE re.codigo_pelicula IN (
+    SELECT p.codigo_pelicula
+    FROM pelicula p
+    WHERE p.idioma LIKE 'Español'
+) AND EXTRACT(year from en.fecha_entrega) > 2010;
+
+-- Otra forma de hacerlo era con otro JOIN
+SELECT din.id_distribuidor, din.nro_inscripcion, en.fecha_entrega, p.idioma
+FROM nacional din
+LEFT JOIN distribuidor di ON di.id_distribuidor = din.id_distribuidor 
+LEFT JOIN entrega en ON en.id_distribuidor = di.id_distribuidor
+LEFT JOIN renglon_entrega re ON re.nro_entrega = en.nro_entrega
+LEFT JOIN pelicula p ON p.codigo_pelicula = re.codigo_pelicula
+WHERE (p.idioma LIKE 'Español') AND EXTRACT(year from en.fecha_entrega) > 2010;
+
+-- 1.12 Liste las películas que nunca han sido entregadas por un distribuidor nacional
+SELECT p.codigo_pelicula, p.titulo, p.idioma, p.formato, p.genero
+FROM pelicula p 
+WHERE p.codigo_pelicula NOT IN (
+    SELECT re.codigo_pelicula
+    FROM renglon_entrega re 
+    INNER JOIN entrega en ON en.nro_entrega = re.nro_entrega
+    INNER JOIN distribuidor di ON di.id_distribuidor = en.id_distribuidor
+    INNER JOIN nacional din ON din.id_distribuidor = di.id_distribuidor);
+-- Nos paramos en las peliculas y vamos a filtrar las entregas
+
+-- 1.13 Liste el apellido y nombre de los empleados que trabajan en departamentos residentes en el país Argentina y donde el jefe de departamento posee más del 40% de comisión
+SELECT em.apellido, em.nombre
+FROM empleado em
+WHERE em.id_departamento IN (
+    SELECT dep.id_departamento
+    FROM departamento dep
+    -- Debemos vincular al empleado con el pais
+    JOIN ciudad c ON c.id_ciudad = dep.id_ciudad
+    JOIN pais p ON p.id_pais = c.id_pais
+    -- Y admas debemos vincular al empleado con el departamento (Habrá un empleado que sea el jefe del departamento)
+    JOIN empleado j ON j.id_jefe = dep.jefe_departamento
+    WHERE p.nombre_pais LIKE 'ARGENTINA' AND j.porc_comision > 0.4
+);
+
+-- 1.14 Indique los departamentos (nombre e identificador completo) que tienen más de 3 empleados con tareas con sueldo mínimo menor a 6000. Muestre el resultado ordenado por distribuidor
+SELECT depto.nombre, depto.id_departamento, depto.id_distribuidor
+FROM departamento depto
+JOIN empleado e ON e.id_departamento = depto.id_departamento AND e.id_distribuidor = depto.id_distribuidor
+WHERE e.id_tarea IN (
+    SELECT t.id_tarea
+    FROM tarea t
+    WHERE t.sueldo_minimo < 6000
+)
+GROUP BY depto.nombre, depto.id_departamento, depto.id_distribuidor
+HAVING COUNT(e.id_empleado) > 3
+ORDER BY depto.id_distribuidor;
+
+-- 1.15 Liste los datos de los departamentos en los que trabajan menos del 10 % de los empleados que hay registrados
+SELECT COUNT(id_empleado) FROM empleado; --> Hay 35081 empleados registrados en total
+SELECT ((10 * COUNT(id_empleado))/100) AS "diez por ciento" FROM empleado; --> el 10% es 3508
+-- O sea que tenemos que ver en que departamentos hay menos de 3508 empleados
+
+SELECT depto.nombre, depto.id_departamento, depto.id_distribuidor
+FROM departamento depto
+JOIN empleado e ON e.id_departamento = depto.id_departamento AND e.id_distribuidor = depto.id_distribuidor
+GROUP BY depto.nombre, depto.id_departamento, depto.id_distribuidor
+HAVING COUNT(e.id_empleado) < (
+    SELECT ((10 * COUNT(id_empleado))/100) FROM empleado;
+)
+
+-- 2.1 Considere la siguiente tabla, con la inserción de datos siguiente
+CREATE TABLE Equipo (
+    Id int NOT NULL,
+    puntos int,
+    descripcion varchar(20),
+    CONSTRAINT pk_equipo PRIMARY KEY(Id)
+);
+
+INSERT INTO Equipo(id, puntos) VALUES (1, null), (2, null), (3, null), (4, null)
+
+-- que retornan las siguientes consultas?
+SELECT avg(puntos), count(puntos), count(*) FROM Equipo
+  -- Null, 0, 4
+
+SELECT id, || "Su descripción es " || descripcion FROM equipo
+WHERE puntos NOT IN (select distinct puntos from equipo);
+  -- No retorna nada No hay puntos distinto y encima estas pidiendo que los puntos no esten incluidos en esos puntos
+
+SELECT * FROM equipo
+WHERE puntos NOT IN (select distinct puntos from equipo);
+  -- Tampoco retorna nada
+
+SELECT e1.* FROM equipo e1 
+JOIN equipo e2 ON (e1.puntos = e2.puntos);
+  -- Tampoco devuelve nada
+
+-- Modifique la consulta 1 para que devuelva los valores nulos como ceros o blancos
+INSERT INTO Equipo(id, puntos) VALUES (1, 0), (2, 0), (3, 0), (4, 0);
+  -- Honestamente no se si el ejercicio es una tomada de pelo o es tan complicado que no lo entiendo
+
+-- 2.2 ¿Cuáles son los voluntarios que no selecciona la siguiente consulta?
+SELECT nro_voluntario, apellido, nombre FROM VOLUNTARIO
+WHERE NOT (porcentaje BETWEEN 0.15 AND 0.30)
+  -- La consulta no selecciona a aquellos voluntarios cuyo porcentaje de comision está entre el 15% y el 30%
+
+-- 2.3 ¿Estas dos consultas arrojan los mismos resultados? O sino, ¿cuáles son las diferencias
+SELECT I.id_institucion, count(*)
+FROM institucion I LEFT JOIN voluntario V
+ON (I. id_institucion = V. id_institucion)
+GROUP BY I.id_institucion;
+
+SELECT V.id_institucion, count(*)
+FROM institucion I LEFT JOIN voluntario V
+ON (I. id_institucion = V. id_institucion)
+GROUP BY V.id_institucion;
+  -- Son diferentes, no arrojan los mismo resultados. Eso es porque el primero es un left join, trae todas las tuplas de la tabla insitucion y las que coinciden con voluntario, pero la otra consulta es como si fuera un rigth join ya que estan invertidas las tablas (de hecho es lo que se hace en servidores sql que no soportan la funcion right)
+
+-- 3.1 Indique cuáles instituciones tienen solo un voluntario trabajando y ninguna tarea desarrollada -históricamente- hasta el momento
+SELECT id_institucion FROM voluntario
+GROUP BY id_institucion
+HAVING count(nro_voluntario) = 1 -- Con esta consulta averiguamos las instituciones que tienen un solo voluntario trabajando
+
+INTERSECT
+
+SELECT v.id_institucion FROM voluntario v
+WHERE v.nro_voluntario NOT IN (
+    SELECT h.nro_voluntario
+    FROM historico h
+); -- Con esta subconsulta se obtienen aquellas instituciones que no han tenido nunca una tarea desarrollada
+-- Nos da como resultado que las instituciones 70, 40 y una null cumplen con ambas restricciones
+
+
 
