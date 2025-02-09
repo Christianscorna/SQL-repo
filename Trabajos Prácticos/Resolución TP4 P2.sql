@@ -243,7 +243,7 @@ SELECT V.id_institucion, count(*)
 FROM institucion I LEFT JOIN voluntario V
 ON (I. id_institucion = V. id_institucion)
 GROUP BY V.id_institucion;
-  -- Son diferentes, no arrojan los mismo resultados. Eso es porque el primero es un left join, trae todas las tuplas de la tabla insitucion y las que coinciden con voluntario, pero la otra consulta es como si fuera un rigth join ya que estan invertidas las tablas (de hecho es lo que se hace en servidores sql que no soportan la funcion right)
+  -- Son diferentes, no arrojan los mismo resultados. Eso es porque el primero es un left join, trae todas las tuplas de la tabla institucion y las que coinciden con voluntario, pero la otra consulta es como si fuera un rigth join ya que estan invertidas las tablas (de hecho es lo que se hace en servidores sql que no soportan la funcion right)
 
 -- 3.1 Indique cuáles instituciones tienen solo un voluntario trabajando y ninguna tarea desarrollada -históricamente- hasta el momento
 SELECT id_institucion FROM voluntario
@@ -259,5 +259,109 @@ WHERE v.nro_voluntario NOT IN (
 ); -- Con esta subconsulta se obtienen aquellas instituciones que no han tenido nunca una tarea desarrollada
 -- Nos da como resultado que las instituciones 70, 40 y una null cumplen con ambas restricciones
 
+-- 3.2 Liste el id, nombre y apellido de los voluntarios de instituciones asentadas en el continente ‘Europeo’ o que son coordinadores, y que además cumplen con el rol de director de alguna institución. Ordene el resultado alfabéticamente 
+SELECT v.nro_voluntario, v.nombre, v.apellido
+FROM voluntario v
+JOIN institucion i ON i.id_institucion = v.id_institucion
+JOIN direccion d ON d.id_direccion = i.id_direccion
+JOIN pais p ON p.id_pais = d.id_pais
+JOIN continente c ON c.id_continente = p.id_continente
+WHERE c.nombre_continente = 'Europeo' OR v.nro_voluntario IN ( --verificamos que coincida el nombre del continente y que ademas el voluntario sea ese coordinador
+  SELECT v2.id_coordinador
+  FROM voluntario v2
+  WHERE v2.id_coordinador IS NOT NULL
+)
 
+INTERSECT
 
+SELECT v.nro_voluntario, v.nombre, v.apellido
+FROM voluntario v
+JOIN institucion i ON i.id_institucion = v.id_institucion 
+WHERE i.id_director IS NOT NULL AND i.id_director = v.nro_voluntario; --Verificamos que tenga director y que ademas ese voluntario sea el director
+
+-- Liste todos los voluntarios que no pertenecen a instituciones ubicadas en el continente Europeo
+SELECT v.nombre, v.apellido, v.nro_voluntario, c.id_continente
+FROM voluntario v
+JOIN institucion i ON i.id_institucion = v.id_institucion
+JOIN direccion d ON d.id_direccion = i.id_direccion
+JOIN pais p ON p.id_pais = d.id_pais
+JOIN continente c ON c.id_continente = p.id_continente
+
+EXCEPT
+
+SELECT v.nombre, v.apellido, v.nro_voluntario, c.id_continente
+FROM voluntario v
+JOIN institucion i ON i.id_institucion = v.id_institucion
+JOIN direccion d ON d.id_direccion = i.id_direccion
+JOIN pais p ON p.id_pais = d.id_pais
+JOIN continente c ON c.id_continente = p.id_continente
+WHERE c.id_continente = 1;
+
+-- 3.4 Indique los voluntarios que históricamente hayan trabajado para todas las instituciones, ordenando el resultado por nombre de voluntario
+-- Te la debo
+
+-- 3.5 Determine cuáles tareas se están ejecutando en todas las instituciones
+-- Te la debo
+
+-- De adicionales
+
+-- 1 Realice un resumen por país, indicando el nombre del país y la cantidad de voluntarios mayores de edad. Tenga en cuenta sólo aquellos voluntarios que pertenezcan a instituciones con más de 4 voluntarios 
+SELECT p.nombre_pais, COUNT(v.nro_voluntario) as "Mayores"
+FROM voluntario v
+JOIN institucion i ON i.id_institucion = v.id_institucion
+JOIN direccion d ON d.id_direccion = i.id_direccion 
+JOIN pais p ON p.id_pais = d.id_pais
+WHERE (EXTRACT(year from CURRENT_DATE) - EXTRACT(year from v.fecha_nacimiento)) > 18
+GROUP BY p.nombre_pais
+HAVING COUNT(v.nro_voluntario) > 4;
+
+-- 2 Liste el id, nombre y apellido de los voluntarios de instituciones asentadas en el continente ‘Europeo’ y que además cumplen con el rol de director de alguna institución. Ordene el resultado alfabéticamente por apellido y nombre 
+SELECT v.nro_voluntario, v.nombre, v.apellido
+FROM voluntario v
+JOIN institucion i ON i.id_institucion = v.id_institucion
+JOIN direccion d ON d.id_direccion = i.id_direccion
+JOIN  pais p ON p.id_pais = d.id_pais
+JOIN continente c ON c.id_continente = p.id_continente
+WHERE c.nombre_continente = 'Europeo' AND v.nro_voluntario = i.id_director
+ORDER BY v.nombre, v.apellido;
+
+-- 3 Indique el id y el nombre de las instituciones que tengan más de 4 voluntarios con tareas de no más de 3500 horas estimadas, o que las horas aportadas no superen las 4000
+SELECT i.id_institucion, i.nombre_institucion, COUNT(v.nro_voluntario) as "Cant voluntarios"
+FROM institucion i
+JOIN voluntario v ON v.id_institucion = i.id_institucion
+WHERE v.horas_aportadas < 4000
+GROUP BY i.id_institucion, i.nombre_institucion
+HAVING COUNT(v.nro_voluntario) > 4;
+
+-- 4 Liste los datos completos de las instituciones en las que se estén ejecutando más del 10% del total de las tareas (distintas)
+-- queremos el 10 % de las tareas
+SELECT (10 * COUNT(DISTINCT id_tarea))/100 AS "10%" FROM tarea;
+
+SELECT i.nombre_institucion, i.id_institucion
+FROM institucion i
+JOIN voluntario v ON v.id_institucion = i.id_institucion
+JOIN tarea t ON t.id_tarea = v.id_tarea
+GROUP BY i.nombre_institucion, i.id_institucion
+HAVING COUNT(DISTINCT t.id_tarea) > ((10 * COUNT(DISTINCT t.id_tarea))/100)
+
+-- 5 Liste el nombre y apellido de los voluntarios que pertenecen a instituciones de la provincia ‘Washington’ y donde el director de la institución ha cumplido con 2 o más tareas
+SELECT v.nombre, v.apellido
+FROM voluntario v 
+JOIN institucion i ON i.id_institucion = v.id_institucion
+JOIN direccion d ON d.id_direccion = i.id_direccion
+WHERE d.provincia = 'Washington' AND i.id_director IN (
+  SELECT i2.id_director
+  FROM institucion i2
+  JOIN voluntario v2 ON v2.nro_voluntario = i2.id_director
+  JOIN tarea t ON t.id_tarea = v2.id_tarea
+  GROUP BY i2.id_director
+  HAVING (COUNT(t.id_tarea)) >= 2
+);
+
+-- 6 Liste nombre, apellido y teléfono de los 5 voluntarios que han participado en la mayor cantidad de tareas
+SELECT v.nombre, v.apellido, v.telefono, COUNT(t.id_tarea) "Total tareas"
+FROM voluntario v 
+JOIN  tarea t ON t.id_tarea = v.id_tarea
+GROUP BY v.nombre, v.apellido, v.telefono
+ORDER BY COUNT(t.id_tarea)
+LIMIT 5;
