@@ -363,5 +363,85 @@ SELECT v.nombre, v.apellido, v.telefono, COUNT(t.id_tarea) "Total tareas"
 FROM voluntario v 
 JOIN  tarea t ON t.id_tarea = v.id_tarea
 GROUP BY v.nombre, v.apellido, v.telefono
-ORDER BY COUNT(t.id_tarea)
+ORDER BY COUNT(t.id_tarea) DESC
 LIMIT 5;
+
+-- 7 Liste los identificadores y títulos de aquellas películas que registran la mayor cantidad de entregas y la menor cantidad de ellas, junto con la cantidad respectiva
+SELECT p.codigo_pelicula, p.titulo, MAX(re.cantidad)
+FROM pelicula p
+JOIN renglon_entrega re ON re.codigo_pelicula = p.codigo_pelicula
+GROUP BY p.codigo_pelicula, p.titulo
+
+UNION
+
+SELECT p.codigo_pelicula, p.titulo, MIN(re.cantidad)
+FROM pelicula p
+JOIN renglon_entrega re ON re.codigo_pelicula = p.codigo_pelicula
+GROUP BY p.codigo_pelicula, p.titulo
+
+-- 8 Obtenga los datos de los videos que han recibido entregas por parte de distribuidores nacionales y también internacionales, ordenados por razón social
+SELECT v.id_video, v.razon_social, v.direccion, v.telefono, v.propietario
+FROM video v 
+JOIN entrega en ON en.id_video = v.id_video
+JOIN distribuidor d ON d.id_distribuidor = en.id_distribuidor
+WHERE d.id_distribuidor IN (
+  SELECT din.id_distribuidor
+  FROM nacional din
+)
+
+UNION 
+
+SELECT v.id_video, v.razon_social, v.direccion, v.telefono, v.propietario
+FROM video v 
+JOIN entrega en ON en.id_video = v.id_video
+JOIN distribuidor d ON d.id_distribuidor = en.id_distribuidor
+WHERE d.id_distribuidor IN (
+  SELECT inter.id_distribuidor
+  FROM internacional inter
+);
+
+-- 9 Liste id, nombre y apellido de los empleados que no son jefes de departamento
+SELECT e.id_empleado, e.nombre, e.apellido
+FROM empleado e
+
+EXCEPT
+
+SELECT e.id_empleado, e.nombre, e.apellido
+FROM empleado e
+JOIN departamento d ON d.id_departamento = e.id_departamento AND d.id_distribuidor = e.id_distribuidor
+WHERE e.id_jefe = d.jefe_departamento;
+
+-- 10 Indique si hay distribuidores (nacionales o internacionales) que efectuaron entregas a todos los videos
+SELECT din.id_distribuidor
+FROM nacional din
+JOIN distribuidor di IN di.id_distribuidor = din.id_distribuidor
+JOIN entrega en ON en.id_distribuidor = di.id_distribuidor
+WHERE en.id_video IN (
+  SELECT v.id_video 
+  FROM video v
+)
+
+UNION 
+
+SELECT dii.id_distribuidor
+FROM internacional dii
+JOIN distribuidor di ON di.id_distribuidor = dii.id_distribuidor
+JOIN entrega en ON en.id_distribuidor = di.id_distribuidor
+WHERE en.id_video IN (
+  SELECT v.id_video
+  FROM video v
+);
+
+-- 11 Determine los videos que han recibido entregas de parte de todos los distribuidores internacionales
+SELECT v.id_video, v.razon_social, v.propietario
+FROM video v 
+JOIN entrega en ON en.id_video = v.id_video 
+JOIN distribuidor di ON en.id_distribuidor = di.id_distribuidor
+
+EXCEPT
+
+SELECT v.id_video, v.razon_social, v.propietario
+FROM video v 
+JOIN entrega en ON en.id_video = v.id_video 
+JOIN distribuidor di ON en.id_distribuidor = di.id_distribuidor
+JOIN nacional din ON din.id_distribuidor = di.id_distribuidor;
